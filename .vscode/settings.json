@@ -1,0 +1,11 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "search.exclude": {
+        "": true
+    },
+    "files.exclude": {
+        "": true
+    },
+    "search.useParentIgnoreFiles": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
+}
