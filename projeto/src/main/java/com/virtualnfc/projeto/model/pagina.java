@@ -39,4 +39,9 @@ public class pagina {
     private String logoBackground;
     private String typePage;
     private String Email;
+    private String spotify;
+    private String maps;
+    private String especialidade;
+    private String registroProfissional;
+    private String convenio;
 }

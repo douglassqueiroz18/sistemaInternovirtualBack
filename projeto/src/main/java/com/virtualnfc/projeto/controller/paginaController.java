@@ -57,7 +57,12 @@ public class paginaController {
             novaPagina.setSite(dto.getSite());
             novaPagina.setBackground(dto.getBackground());
             novaPagina.setTypePage(dto.getTypePage());
-
+            novaPagina.setEmail(dto.getEmail());
+            novaPagina.setSpotify(dto.getSpotify());
+            novaPagina.setMaps(dto.getMaps());
+            novaPagina.setEspecialidade(dto.getEspecialidade());
+            novaPagina.setRegistroProfissional(dto.getRegistroProfissional());
+            novaPagina.setConvenio(dto.getConvenio());
             pagina savedPagina = paginaRepository.save(novaPagina);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedPagina);
         } catch (Exception e) {
@@ -222,6 +227,11 @@ public class paginaController {
     paginaExistente.setSite(dto.getSite());
     paginaExistente.setBackground(dto.getBackground());
     paginaExistente.setTypePage(dto.getTypePage());
+    paginaExistente.setSpotify(dto.getSpotify());
+    paginaExistente.setMaps(dto.getMaps());
+    paginaExistente.setEspecialidade(dto.getEspecialidade());
+    paginaExistente.setRegistroProfissional(dto.getRegistroProfissional());
+    pagianaExistente.setConvenio(dto.getConvenio());
 
     // LogoBackground também pode precisar do mesmo tratamento
     String logoBgNova = dto.getLogoBackground();
