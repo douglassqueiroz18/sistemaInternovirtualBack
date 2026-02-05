@@ -231,7 +231,7 @@ public class paginaController {
     paginaExistente.setMaps(dto.getMaps());
     paginaExistente.setEspecialidade(dto.getEspecialidade());
     paginaExistente.setRegistroProfissional(dto.getRegistroProfissional());
-    pagianaExistente.setConvenio(dto.getConvenio());
+    paginaExistente.setConvenio(dto.getConvenio());
 
     // LogoBackground também pode precisar do mesmo tratamento
     String logoBgNova = dto.getLogoBackground();
