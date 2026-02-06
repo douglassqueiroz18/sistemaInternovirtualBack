@@ -1,23 +1,24 @@
 version: '3.8'
-backend:
-  build:
-    context: ./backend
-    dockerfile: Dockerfile
-  container_name: app-backend
-  restart: unless-stopped
-  ports:
-    - "${BACKEND_PORT}:${BACKEND_PORT_INTERNAL}"
-  environment:
-    - DB_HOST=database
-    - DB_PORT=5432
-    - DB_NAME=${DB_NAME}
-    - DB_USER=${DB_USER}
-    - DB_PASSWORD=${DB_PASSWORD}
-    - NODE_ENV=development
-  depends_on:
-    database:
-      condition: service_healthy
-  networks:
-    - app-network
-  volumes:
-    - ./backend:/app
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: app-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT_INTERNAL}"
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - NODE_ENV=development
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - app-network
+    volumes:
+      - ./backend:/app
