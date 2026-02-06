@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   backend:
     build:
@@ -9,16 +10,11 @@ services:
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT_INTERNAL}"
     environment:
-      - DB_HOST=database
+      - DB_HOST=postgres_db
       - DB_PORT=5432
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - NODE_ENV=development
-    depends_on:
-      database:
-        condition: service_healthy
     networks:
       - app-network
-    volumes:
-      - ./projeto:/app
