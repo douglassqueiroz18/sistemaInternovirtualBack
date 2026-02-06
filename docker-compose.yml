@@ -2,7 +2,7 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./backend
+      context: ./backend/projeto
       dockerfile: Dockerfile
     container_name: app-backend
     restart: unless-stopped
@@ -21,4 +21,4 @@ services:
     networks:
       - app-network
     volumes:
-      - ./backend:/app
+      - ./backend/projeto:/app
