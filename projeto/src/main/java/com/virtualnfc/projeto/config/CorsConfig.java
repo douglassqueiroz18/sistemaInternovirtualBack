@@ -14,8 +14,13 @@ public class CorsConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        config.setAllowedOrigins(List.of("http://89.167.42.44:4200"));
+        // ADICIONE SEUS DOMÍNIOS AQUI:
+        config.setAllowedOrigins(List.of(
+            "http://89.167.42.44:4200",      // IP com porta
+            "http://www.virtualnfc.com",     // Domínio SEM porta (via Nginx)
+            "http://virtualnfc.com",         // Domínio raiz
+            "http://localhost:4200"          // Local
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
