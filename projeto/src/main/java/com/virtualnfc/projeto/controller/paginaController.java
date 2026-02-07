@@ -27,7 +27,7 @@ import jakarta.transaction.Transactional;
 import com.virtualnfc.projeto.*;
 import lombok.extern.slf4j.Slf4j;
 
-@CrossOrigin(origins = "${FRONTEND_URL:http://localhost:4200}")
+@CrossOrigin(origins = "${FRONTEND_URL:http://89.167.42.44:4200}")
 
 @RestController
 @Slf4j
