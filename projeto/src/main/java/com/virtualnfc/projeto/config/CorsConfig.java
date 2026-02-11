@@ -18,7 +18,9 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of(
             "http://89.167.42.44:4200",      // IP com porta
             "http://www.virtualnfc.com",     // Domínio SEM porta (via Nginx)
+            "https://www.virtualnfc.com",
             "http://virtualnfc.com",         // Domínio raiz
+            "https://virtualnfc.com", 
             "http://localhost:4200"          // Local
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
