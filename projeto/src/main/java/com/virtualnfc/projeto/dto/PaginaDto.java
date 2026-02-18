@@ -14,7 +14,7 @@ public class PaginaDto {
     private String site;
     private String logoBackground;
     private String typePage;
-    private String Email;
+    private String email;
     private String logo;
     private String background;
     private String spotify;
@@ -22,4 +22,5 @@ public class PaginaDto {
     private String especialidade;
     private String registroProfissional;
     private String convenio;
+    private String chavePix;
 }
