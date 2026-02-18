@@ -44,4 +44,5 @@ public class pagina {
     private String especialidade;
     private String registroProfissional;
     private String convenio;
+    private String chavePix;
 }

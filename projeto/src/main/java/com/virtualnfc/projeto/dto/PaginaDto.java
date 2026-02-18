@@ -22,4 +22,5 @@ public class PaginaDto {
     private String especialidade;
     private String registroProfissional;
     private String convenio;
+    private String chavePix;
 }
