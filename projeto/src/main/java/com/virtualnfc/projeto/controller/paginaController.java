@@ -1,6 +1,5 @@
 package com.virtualnfc.projeto.controller;
 
-import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -9,9 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +21,6 @@ import com.virtualnfc.projeto.repository.paginaRepository;
 
 import jakarta.transaction.Transactional;
 
-import com.virtualnfc.projeto.*;
 import lombok.extern.slf4j.Slf4j;
 
 @CrossOrigin(origins = "${FRONTEND_URL:http://localhost:4200}")
@@ -34,13 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 public class paginaController {
 
     private final paginaRepository paginaRepository;
-    private final fileStorageService fileStorageService;
 
-    // O Spring vai encontrar o arquivo FileStorageService.java e colocar aqui
-    // automaticamente
-    public paginaController(paginaRepository paginaRepository, fileStorageService fileStorageService) {
+    public paginaController(paginaRepository paginaRepository) {
         this.paginaRepository = paginaRepository;
-        this.fileStorageService = fileStorageService;
     }
 
     @PostMapping("/pagina")
@@ -108,16 +100,6 @@ public class paginaController {
         return ResponseEntity.noContent().build(); // 204
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
-        try {
-            String url = fileStorageService.uploadFile(file);
-            return ResponseEntity.ok(Collections.singletonMap("url", url));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(e.getMessage());
-        }
-    }
-
     @GetMapping("/access/check/{serialKey}")
     public ResponseEntity<?> accessBySerial(@PathVariable String serialKey) {
         boolean exists = paginaRepository.existsBySerialKey(serialKey);
@@ -147,74 +129,10 @@ public class paginaController {
 
     pagina paginaExistente = optionalPagina.get();
     
-    // LÓGICA DE SUBSTITUIÇÃO DE IMAGEM
-    String logoAntiga = paginaExistente.getLogo();
+    // Mantém os valores de logo e logoBackground exatamente como recebidos no DTO.
     String logoNova = dto.getLogo();
-    String logoBackgroundAntiga = paginaExistente.getLogoBackground();
     String logoBackgroundNova = dto.getLogoBackground();
-    // Se a nova logo é um base64 (data:image), faz upload para DigitalOcean
-    if (logoNova != null && logoNova.startsWith("data:image")) {
-        try {
-            // Converte base64 para MultipartFile
-            String fileName = "logo_" + serialKey + "_" + System.currentTimeMillis() + ".png";
-            MultipartFile file = convertBase64ToMultipartFile(logoNova, fileName);
-            
-            //Faz o delete da logo antiga antes de subir a nova
-            fileStorageService.deleteFile(logoAntiga);
-            // Faz upload para DigitalOcean
-            String uploadedUrl = fileStorageService.uploadFile(file);
-            logoNova = uploadedUrl;
-            
-            // Atualiza o DTO com a URL
-            dto.setLogo(uploadedUrl);
-        } catch (Exception e) {
-            log.error("Erro ao fazer upload da imagem base64: ", e);
-            // Opção: retornar erro ou manter logo antiga
-            logoNova = logoAntiga;
-        }
-    }
 
-    // Se existe uma logo antiga E ela é diferente da nova que está chegando
-    if (logoAntiga != null && !logoAntiga.equals(logoNova)) {
-        // Se a logo nova for nula ou um link diferente, deletamos a anterior do Space
-        fileStorageService.deleteFile(logoAntiga);
-    }
-    if(logoBackgroundNova != null && logoBackgroundNova.startsWith("data:image")){
-        try {
-            // Converte base64 para MultipartFile
-            String fileName = "logobackground_" + serialKey + "_" + System.currentTimeMillis() + ".png";
-            MultipartFile file = convertBase64ToMultipartFile(logoBackgroundNova, fileName);
-            
-
-            // Faz upload para DigitalOcean
-            String uploadedUrl = fileStorageService.uploadFile(file);
-            // Se o upload foi bem sucedido, deleta a ANTIGA
-            if (logoBackgroundAntiga != null) {
-                fileStorageService.deleteFile(logoBackgroundAntiga);
-            }
-            // Atualiza a variável para a nova URL
-            logoBackgroundNova = uploadedUrl;
-            dto.setLogoBackground(uploadedUrl);
-        } catch (Exception e) {
-            log.error("Erro ao fazer upload da imagem base64: ", e);
-            // Opção: retornar erro ou manter logo antiga
-            logoBackgroundNova = logoBackgroundAntiga;
-            // NÃO deleta a antiga porque o upload da nova falhou
-        }
-    }else if(logoBackgroundNova == null || logoBackgroundNova.isEmpty()){
-        // Se o usuário enviou null ou vazio (escolheu cor ou removeu a imagem)
-        if(logoBackgroundAntiga != null){
-            fileStorageService.deleteFile(logoBackgroundAntiga);
-        }
-        // Mantém como null ou string vazia
-    }else if(logoBackgroundAntiga != null && !logoBackgroundAntiga.equals(logoBackgroundNova)) {
-        // Se a logo nova for nula ou um link diferente, deletamos a anterior do Space
-        if (logoBackgroundNova.startsWith("http") && !logoBackgroundNova.startsWith("data:image")) {
-        // É uma URL externa, deleta a imagem antiga do nosso storage
-        fileStorageService.deleteFile(logoBackgroundAntiga);
-        }    
-    }
-    // ATUALIZA LOGO (agora com URL do DigitalOcean ou mantém a antiga)
     paginaExistente.setLogo(logoNova);
     paginaExistente.setLogoBackground(logoBackgroundNova);
     paginaExistente.setNomeCartao(dto.getNomeCartao());
@@ -234,82 +152,10 @@ public class paginaController {
     paginaExistente.setRegistroProfissional(dto.getRegistroProfissional());
     paginaExistente.setConvenio(dto.getConvenio());
     paginaExistente.setChavePix(dto.getChavePix());
-    // LogoBackground também pode precisar do mesmo tratamento
-    String logoBgNova = dto.getLogoBackground();
-    if (logoBgNova != null && logoBgNova.startsWith("data:image")) {
-        try {
-            String fileName = "logobg_" + serialKey + "_" + System.currentTimeMillis() + ".png";
-            MultipartFile file = convertBase64ToMultipartFile(logoBgNova, fileName);
-            String uploadedUrl = fileStorageService.uploadFile(file);
-            paginaExistente.setLogoBackground(uploadedUrl);
-        } catch (Exception e) {
-            log.error("Erro ao fazer upload do logoBackground: ", e);
-        }
-    }
-
     pagina paginaAtualizada = paginaRepository.save(paginaExistente);
     return ResponseEntity.ok(paginaAtualizada);
 }
 
-    // Método auxiliar para converter base64 em MultipartFile
-    private MultipartFile convertBase64ToMultipartFile(String base64, String fileName) {
-        try {
-            // Remove o prefixo "data:image/...;base64,"
-            String base64Data = base64.split(",")[1];
-            byte[] imageBytes = Base64.getDecoder().decode(base64Data);
-
-            // Detecta o tipo MIME do base64
-            String mimeType = base64.split(";")[0].split(":")[1];
-
-            return new MultipartFile() {
-                @Override
-                public String getName() {
-                    return "file";
-                }
-
-                @Override
-                public String getOriginalFilename() {
-                    return fileName;
-                }
-
-                @Override
-                public String getContentType() {
-                    return mimeType;
-                }
-
-                @Override
-                public boolean isEmpty() {
-                    return imageBytes.length == 0;
-                }
-
-                @Override
-                public long getSize() {
-                    return imageBytes.length;
-                }
-
-                @Override
-                public byte[] getBytes() {
-                    return imageBytes;
-                }
-
-                @Override
-                public java.io.InputStream getInputStream() {
-                    return new ByteArrayInputStream(imageBytes);
-                }
-
-                @Override
-                public void transferTo(java.io.File dest) throws IllegalStateException {
-                    try {
-                        java.nio.file.Files.write(dest.toPath(), imageBytes);
-                    } catch (Exception e) {
-                        throw new IllegalStateException(e);
-                    }
-                }
-            };
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao converter base64 para arquivo", e);
-        }
-    }
     private String gerarSerialKeyUnica() {
         String serialKey;
         do {
