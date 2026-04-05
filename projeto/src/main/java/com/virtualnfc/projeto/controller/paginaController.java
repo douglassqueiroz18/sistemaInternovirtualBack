@@ -23,7 +23,7 @@ import jakarta.transaction.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
 
-@CrossOrigin(origins = "${FRONTEND_URL:http://localhost:4200}")
+@CrossOrigin(origins = "${FRONTEND_URL:http://89.167.42.44:4200}")
 
 @RestController
 @Slf4j
@@ -152,6 +152,23 @@ public class paginaController {
     paginaExistente.setRegistroProfissional(dto.getRegistroProfissional());
     paginaExistente.setConvenio(dto.getConvenio());
     paginaExistente.setChavePix(dto.getChavePix());
+<<<<<<< HEAD
+=======
+
+    // LogoBackground também pode precisar do mesmo tratamento
+    String logoBgNova = dto.getLogoBackground();
+    if (logoBgNova != null && logoBgNova.startsWith("data:image")) {
+        try {
+            String fileName = "logobg_" + serialKey + "_" + System.currentTimeMillis() + ".png";
+            MultipartFile file = convertBase64ToMultipartFile(logoBgNova, fileName);
+            String uploadedUrl = fileStorageService.uploadFile(file);
+            paginaExistente.setLogoBackground(uploadedUrl);
+        } catch (Exception e) {
+            log.error("Erro ao fazer upload do logoBackground: ", e);
+        }
+    }
+
+>>>>>>> HML
     pagina paginaAtualizada = paginaRepository.save(paginaExistente);
     return ResponseEntity.ok(paginaAtualizada);
 }
