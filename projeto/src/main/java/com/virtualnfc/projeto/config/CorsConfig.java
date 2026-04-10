@@ -22,7 +22,8 @@ public class CorsConfig {
             "http://virtualnfc.com",         // Domínio raiz
             "https://virtualnfc.com", 
             "http://localhost:4200",          // Local
-            "https://89.167.42.44:4200"      // IP com porta
+            "https://89.167.42.44:4200",
+            "https://psk16j5e.up.railway.app"   
 
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
