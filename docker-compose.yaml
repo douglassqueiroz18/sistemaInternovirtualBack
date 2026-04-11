@@ -7,24 +7,21 @@ services:
       dockerfile: Dockerfile
     container_name: app-backend
     restart: unless-stopped
-    # FORÇA O JAVA A LER OS PARÂMETROS VIA LINHA DE COMANDO
+    # O command agora vai funcionar porque mudamos para CMD no Dockerfile
     command: >
-      java -Dspring.datasource.url=jdbc:postgresql://postgres_db:5432/pagina 
-      -Dspring.datasource.username=postgres 
-      -Dspring.datasource.password=2713 
-      -Dspring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
-      -jar app.jar
+      java -Dspring.datasource.url=jdbc:postgresql://postgres_db:5432/${DB_NAME}
+           -Dspring.datasource.username=${DB_USER}
+           -Dspring.datasource.password=${DB_PASSWORD}
+           -Dspring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+           -jar app.jar
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/pagina
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=2713
-      # Esta linha abaixo força o Hibernate a usar o dialeto correto mesmo sem ver os metadados antes
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
     networks:
       - app-network
-    # Garante que o banco suba antes do backend
     depends_on:
       - postgres_db 
 
