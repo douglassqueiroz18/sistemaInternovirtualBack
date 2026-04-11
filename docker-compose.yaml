@@ -10,11 +10,11 @@ services:
     ports:
       - "${BACKEND_PORT:-8080}:${BACKEND_PORT_INTERNAL:-8080}"
     environment:
-      # Mapeando as variáveis para o padrão que o Spring Boot reconhece automaticamente
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/${DB_NAME:-pagina}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER:-postgres}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-2713}
-      - SERVER_PORT=${BACKEND_PORT_INTERNAL:-8080}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres_db:5432/pagina
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=2713
+      # Esta linha abaixo força o Hibernate a usar o dialeto correto mesmo sem ver os metadados antes
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.PostgreSQLDialect
     networks:
       - app-network
     # Garante que o banco suba antes do backend
