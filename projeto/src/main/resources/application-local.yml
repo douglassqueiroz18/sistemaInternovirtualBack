@@ -1,5 +1,0 @@
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/pagina
-    username: postgres
-    password: 2713
