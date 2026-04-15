@@ -24,7 +24,8 @@ public class CorsConfig {
             "http://localhost:4200",          // Local
             "https://89.167.42.44:4200",
             "virtualnfcbackend-production.up.railway.app"  ,
-            "https://virtualnfcbackend-production.up.railway.app" // Adicione o https:// aqui
+            "https://virtualnfcbackend-production.up.railway.app",
+            "sistema-internovirtual-front.vercel.app"
 
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
