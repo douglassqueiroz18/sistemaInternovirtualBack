@@ -23,9 +23,9 @@ public class CorsConfig {
             "https://virtualnfc.com", 
             "http://localhost:4200",          // Local
             "https://89.167.42.44:4200",
-            "virtualnfcbackend-production.up.railway.app"  ,
+            "https://virtualnfcbackend-production.up.railway.app"  ,
             "https://virtualnfcbackend-production.up.railway.app",
-            "sistema-internovirtual-front.vercel.app",
+            "https://sistema-internovirtual-front.vercel.app",
                 "https://sistema-internovirtual-front.vercel.app"
 
         ));
