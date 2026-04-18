@@ -12,24 +12,15 @@ public class SecurityConfig {
     public SecurityConfig(CorsConfigurationSource corsConfigurationSource) {
         this.corsConfigurationSource = corsConfigurationSource;
     }
+    // SecurityConfig.java - CORRETO
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // 🔓 CORS (OBRIGATÓRIO)
-            .cors(cors -> {})
-            // 🔐 CSRF desativado para API
-            .csrf(csrf -> csrf.disable())
-
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers(
-                    "/",
-                    "/index.html",
-                    "/*.js",
-                    "/*.css",
-                    "/assets/**"
-                ).permitAll()
-                .anyRequest().permitAll()
-            );
+                .cors(cors -> cors.configurationSource(corsConfigurationSource)) // 👈 passa a source!
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(authz -> authz
+                        .anyRequest().permitAll()
+                );
 
         return http.build();
     }

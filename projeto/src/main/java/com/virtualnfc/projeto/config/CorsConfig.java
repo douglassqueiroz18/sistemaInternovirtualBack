@@ -10,7 +10,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 public class CorsConfig {
- 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -23,10 +23,8 @@ public class CorsConfig {
             "https://virtualnfc.com", 
             "http://localhost:4200",          // Local
             "https://89.167.42.44:4200",
-            "https://virtualnfcbackend-production.up.railway.app"  ,
             "https://virtualnfcbackend-production.up.railway.app",
-            "https://sistema-internovirtual-front.vercel.app",
-                "https://sistema-internovirtual-front.vercel.app"
+            "https://sistema-internovirtual-front.vercel.app"
 
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
