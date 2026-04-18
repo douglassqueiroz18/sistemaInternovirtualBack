@@ -8,7 +8,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 import org.springframework.core.Ordered;
 
 @Configuration
@@ -16,20 +15,19 @@ import org.springframework.core.Ordered;
 public class CorsConfig {
 
     @Bean
-    public CorsFilter corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         // ADICIONE SEUS DOMÍNIOS AQUI:
         config.setAllowedOrigins(List.of(
-            "http://89.167.42.44:4200",      // IP com porta
-            "http://www.virtualnfc.com",     // Domínio SEM porta (via Nginx)
+            "http://89.167.42.44:4200",
+            "http://www.virtualnfc.com",
             "https://www.virtualnfc.com",
-            "http://virtualnfc.com",         // Domínio raiz
-            "https://virtualnfc.com", 
-            "http://localhost:4200",          // Local
+            "http://virtualnfc.com",
+            "https://virtualnfc.com",
+            "http://localhost:4200",
             "https://89.167.42.44:4200",
             "https://virtualnfcbackend-production.up.railway.app",
             "https://sistema-internovirtual-front.vercel.app"
-
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
@@ -40,6 +38,6 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
-        return new CorsFilter(source);
+        return source;
     }
 }
