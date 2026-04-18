@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,8 +21,6 @@ import com.virtualnfc.projeto.repository.paginaRepository;
 import jakarta.transaction.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
-
-@CrossOrigin(origins = "${FRONTEND_URL:http://89.167.42.44:4200}")
 
 @RestController
 @Slf4j
