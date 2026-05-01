@@ -8,7 +8,8 @@ import com.virtualnfc.projeto.entity.Produto;
 import com.virtualnfc.projeto.service.ProdutoService;
 import com.virtualnfc.projeto.service.StorageService;
 import lombok.RequiredArgsConstructor;
-
+import lombok.extern.slf4j.Slf4j;
+@Slf4j
 @RestController
 @RequestMapping("/api/produtos")
 @RequiredArgsConstructor
@@ -28,30 +29,46 @@ public class ProdutoController {
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<Produto> criar(
-        @RequestPart("produto") Produto produto, 
-        @RequestPart("imagem") MultipartFile imagem) throws Exception {
+            @RequestPart("produto") Produto produto, 
+            @RequestPart("imagem") MultipartFile imagem) throws Exception {
     
-    String urlImagem = storageService.fazerUpload(imagem);
-    
-    produto.setImagemUrl(urlImagem);
-    
-    return ResponseEntity.ok(service.salvar(produto));
+        log.info("Recebendo requisição para criar produto: {}", produto.getNome());
+        log.info("Arquivo recebido: {} ({} bytes)", imagem.getOriginalFilename(), imagem.getSize());
+        
+        try {
+            log.info("Iniciando upload para Hetzner via porta 22...");
+            String urlImagem = storageService.fazerUpload(imagem);
+            log.info("Upload concluído com sucesso! URL: {}", urlImagem);
+            
+            produto.setImagemUrl(urlImagem);
+            Produto salvo = service.salvar(produto);
+            
+            log.info("Produto salvo no banco de dados com ID: {}", salvo.getId());
+            return ResponseEntity.ok(salvo);
+        } catch (Exception e) {
+            log.error("ERRO CRÍTICO no processo de criação: {}", e.getMessage());
+            throw e;
+        }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        log.info("Solicitação para deletar produto ID: {}", id);
         Produto produto = service.buscarPorId(id);
         
         if (produto.getImagemUrl() != null) {
+            log.info("Removendo imagem da Hetzner: {}", produto.getImagemUrl());
             storageService.deletarArquivo(produto.getImagemUrl());
         }
         
         service.deletar(id);
+        log.info("Produto ID {} removido com sucesso.", id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Produto> atualizar(@PathVariable Long id, @RequestBody Produto produto) {
+        log.info("Atualizando dados do produto ID: {}", id);
         return ResponseEntity.ok(service.atualizar(id, produto));
     }
 }
