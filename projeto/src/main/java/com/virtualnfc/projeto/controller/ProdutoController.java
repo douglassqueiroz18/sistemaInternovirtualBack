@@ -30,7 +30,7 @@ public class ProdutoController {
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<Produto> criar(
             @RequestPart("produto") Produto produto, 
-            @RequestPart("imagem") MultipartFile imagem) throws Exception {
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem) throws Exception {
     
         log.info("Recebendo requisição para criar produto: {}", produto.getNome());
         log.info("Arquivo recebido: {} ({} bytes)", imagem.getOriginalFilename(), imagem.getSize());
