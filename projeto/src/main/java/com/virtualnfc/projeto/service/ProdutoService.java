@@ -34,6 +34,9 @@ public class ProdutoService {
             .map(produto -> {
                 produto.setNome(produtoAtualizado.getNome());
                 produto.setPreco(produtoAtualizado.getPreco());
+                if (produtoAtualizado.getImagemUrl() != null) {
+                produto.setImagemUrl(produtoAtualizado.getImagemUrl());
+            }
                 return repository.save(produto);
             })
             .orElseThrow(() -> new RuntimeException("Produto não encontrado com id: " + id));
