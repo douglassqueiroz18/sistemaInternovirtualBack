@@ -11,8 +11,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.springframework.core.env.Environment;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.UUID;
 
 @Service
@@ -21,13 +22,15 @@ public class StorageService {
     private final String bucketName;
     private final String publicBaseUrl;
     private final S3Client s3Client;
-
+    private final String pastaAmbiente;
     public StorageService(
             @Value("${aws.s3.bucket}") String bucketName,
             @Value("${aws.s3.endpoint}") String endpoint,
             @Value("${aws.access.key}") String accessKey,
             @Value("${aws.secret.key}") String secretKey,
-            @Value("${aws.s3.region}") String region) {
+            @Value("${aws.s3.region}") String region,
+            Environment env
+        ) {
         
         this.bucketName = bucketName;
         this.publicBaseUrl = "https://" + bucketName + "." + region + ".digitaloceanspaces.com/";
@@ -38,10 +41,15 @@ public class StorageService {
                         AwsBasicCredentials.create(accessKey, secretKey)))
                 .region(Region.of(region))
                 .build();
+        if (Arrays.asList(env.getActiveProfiles()).contains("prod")) {
+            this.pastaAmbiente = "produtos-loja/";
+        } else {
+            this.pastaAmbiente = "produtos-loja-base-teste/";
+        }
     }
 
     public String fazerUpload(MultipartFile arquivo) {
-        String pasta = "produtos-loja/";
+        String pasta = this.pastaAmbiente;
         String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
 
         try {
@@ -64,11 +72,11 @@ public class StorageService {
 
     public void deletarArquivo(String urlPublica) {
         try {
-            String nomeArquivo = urlPublica.substring(urlPublica.lastIndexOf("/") + 1);
+            String key = urlPublica.replace(publicBaseUrl, "");
             
             DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(nomeArquivo)
+                    .key(key)
                     .build();
 
             s3Client.deleteObject(deleteRequest);
