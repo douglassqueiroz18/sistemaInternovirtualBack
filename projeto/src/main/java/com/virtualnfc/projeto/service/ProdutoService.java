@@ -23,9 +23,7 @@ public class ProdutoService {
             .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 
-    /**
-     * Retorna a URL da Logo armazenada diretamente no DigitalOcean Spaces
-     */
+
     public Produto getLogoUrl() {
         String urlLogo = storageService.getPublicBaseUrl() + "logo.png"; 
         return new Produto(null, "Logo", null, null, null, urlLogo);
@@ -50,7 +48,6 @@ public class ProdutoService {
         Produto produto = repository.findById(id)
             .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-        // Remove do DigitalOcean Spaces antes de apagar do banco
         if (produto.getImagemUrl() != null) {
             storageService.deletarArquivo(produto.getImagemUrl());
         }

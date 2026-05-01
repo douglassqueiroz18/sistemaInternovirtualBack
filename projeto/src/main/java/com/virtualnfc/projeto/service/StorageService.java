@@ -41,20 +41,21 @@ public class StorageService {
     }
 
     public String fazerUpload(MultipartFile arquivo) {
+        String pasta = "produtos-loja/";
         String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
 
         try {
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(nomeArquivo)
-                    .acl(ObjectCannedACL.PUBLIC_READ) // Torna a imagem pública
+                    .key(pasta + nomeArquivo)
+                    .acl(ObjectCannedACL.PUBLIC_READ)
                     .contentType(arquivo.getContentType())
                     .build();
 
             s3Client.putObject(putObjectRequest, 
                     RequestBody.fromInputStream(arquivo.getInputStream(), arquivo.getSize()));
 
-            return publicBaseUrl + nomeArquivo;
+            return publicBaseUrl + pasta + nomeArquivo;
 
         } catch (Exception e) {
             throw new RuntimeException("Falha ao enviar arquivo para DigitalOcean: " + e.getMessage());
