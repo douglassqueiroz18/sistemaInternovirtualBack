@@ -42,7 +42,7 @@ public class StorageService {
 
         try {
             JSch jsch = new JSch();
-            session = jsch.getSession(user, host, 23);
+            session = jsch.getSession(user, host, 22);
             session.setPassword(password);
 
             Properties config = new Properties();
@@ -77,7 +77,7 @@ public class StorageService {
 
         try {
             JSch jsch = new JSch();
-            session = jsch.getSession(user, host, 23);
+            session = jsch.getSession(user, host, 22);
             session.setPassword(password);
             session.setConfig("StrictHostKeyChecking", "no");
             session.connect();
