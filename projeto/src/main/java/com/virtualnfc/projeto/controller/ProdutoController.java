@@ -74,9 +74,21 @@ public class ProdutoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Produto> atualizar(@PathVariable Long id, @RequestBody Produto produto) {
-        log.info("Atualizando dados do produto ID: {}", id);
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<Produto> atualizarComImagem(
+            @PathVariable Long id,
+            @RequestPart("produto") Produto produto,
+            @RequestPart(value = "imagem", required = false) MultipartFile imagem) throws Exception {
+        
+        log.info("Requisição de atualização completa para o ID: {}", id);
+        
+        // 1. Se veio imagem nova, faz o upload e atualiza a URL no objeto
+        if (imagem != null && !imagem.isEmpty()) {
+            String novaUrl = storageService.fazerUpload(imagem);
+            produto.setImagemUrl(novaUrl);
+        }
+        
+        // 2. Chama o service para salvar as mudanças
         return ResponseEntity.ok(service.atualizar(id, produto));
     }
 }
