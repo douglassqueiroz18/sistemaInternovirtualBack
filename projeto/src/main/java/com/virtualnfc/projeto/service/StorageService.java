@@ -75,4 +75,7 @@ public class StorageService {
             System.err.println("Erro ao deletar no Spaces: " + e.getMessage());
         }
     }
+    public String getPublicBaseUrl() {
+        return this.publicBaseUrl;
+    }
 }
