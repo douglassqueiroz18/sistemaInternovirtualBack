@@ -36,15 +36,23 @@ public class ProdutoController {
         log.info("Arquivo recebido: {} ({} bytes)", imagem.getOriginalFilename(), imagem.getSize());
         
         try {
+        String urlImagem = null;
+
+        // Verifica se a imagem foi enviada antes de tentar usá-la
+        if (imagem != null && !imagem.isEmpty()) {
+            log.info("Arquivo recebido: {} ({} bytes)", imagem.getOriginalFilename(), imagem.getSize());
             log.info("Iniciando upload para Hetzner via porta 22...");
-            String urlImagem = storageService.fazerUpload(imagem);
+            urlImagem = storageService.fazerUpload(imagem);
             log.info("Upload concluído com sucesso! URL: {}", urlImagem);
-            
-            produto.setImagemUrl(urlImagem);
-            Produto salvo = service.salvar(produto);
-            
-            log.info("Produto salvo no banco de dados com ID: {}", salvo.getId());
-            return ResponseEntity.ok(salvo);
+        } else {
+            log.warn("Nenhuma imagem foi enviada para o produto: {}", produto.getNome());
+        }
+        
+        produto.setImagemUrl(urlImagem);
+        Produto salvo = service.salvar(produto);
+        
+        log.info("Produto salvo no banco de dados com ID: {}", salvo.getId());
+        return ResponseEntity.ok(salvo);
         } catch (Exception e) {
             log.error("ERRO CRÍTICO no processo de criação: {}", e.getMessage());
             throw e;
