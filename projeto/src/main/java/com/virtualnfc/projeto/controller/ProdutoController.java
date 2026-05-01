@@ -33,7 +33,6 @@ public class ProdutoController {
             @RequestPart(value = "imagem", required = false) MultipartFile imagem) throws Exception {
     
         log.info("Recebendo requisição para criar produto: {}", produto.getNome());
-        log.info("Arquivo recebido: {} ({} bytes)", imagem.getOriginalFilename(), imagem.getSize());
         
         try {
         String urlImagem = null;
