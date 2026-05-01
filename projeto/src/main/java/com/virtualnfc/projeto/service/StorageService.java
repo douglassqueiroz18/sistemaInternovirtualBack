@@ -1,96 +1,78 @@
 package com.virtualnfc.projeto.service;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.util.Properties;
+import java.net.URI;
 import java.util.UUID;
 
 @Service
 public class StorageService {
 
-    private final String host;
-    private final String user;
-    private final String password;
-    private final String remotePath;
+    private final String bucketName;
     private final String publicBaseUrl;
+    private final S3Client s3Client;
 
     public StorageService(
-            @Value("${HETZNER_HOST}") String host,
-            @Value("${HETZNER_USER}") String user,
-            @Value("${HETZNER_PASS}") String password,
-            @Value("${HETZNER_REMOTE_PATH}") String remotePath,
-            @Value("${HETZNER_BASE_URL}") String publicBaseUrl) {
-        this.host = host;
-        this.user = user;
-        this.password = password;
-        this.remotePath = remotePath;
-        this.publicBaseUrl = publicBaseUrl;
+            @Value("${aws.s3.bucket}") String bucketName,
+            @Value("${aws.s3.endpoint}") String endpoint,
+            @Value("${aws.access.key}") String accessKey,
+            @Value("${aws.secret.key}") String secretKey,
+            @Value("${aws.s3.region}") String region) {
+        
+        this.bucketName = bucketName;
+        this.publicBaseUrl = "https://" + bucketName + "." + region + ".digitaloceanspaces.com/";
+
+        this.s3Client = S3Client.builder()
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(StaticCredentialsProvider.create(
+                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .region(Region.of(region))
+                .build();
     }
 
     public String fazerUpload(MultipartFile arquivo) {
-        // Gera um nome único para evitar sobrescrita
         String nomeArquivo = UUID.randomUUID() + "_" + arquivo.getOriginalFilename();
-        
-        Session session = null;
-        ChannelSftp channelSftp = null;
 
         try {
-            JSch jsch = new JSch();
-            session = jsch.getSession(user, host, 22);
-            session.setPassword(password);
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(nomeArquivo)
+                    .acl(ObjectCannedACL.PUBLIC_READ) // Torna a imagem pública
+                    .contentType(arquivo.getContentType())
+                    .build();
 
-            Properties config = new Properties();
-            config.put("StrictHostKeyChecking", "no");
-            session.setConfig(config);
-            session.connect();
+            s3Client.putObject(putObjectRequest, 
+                    RequestBody.fromInputStream(arquivo.getInputStream(), arquivo.getSize()));
 
-            channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
-
-            // Envia o arquivo para a pasta na Hetzner
-            try (InputStream inputStream = arquivo.getInputStream()) {
-                channelSftp.put(inputStream, remotePath + nomeArquivo);
-            }
-
-            // Retorna a URL pública para salvar no banco
             return publicBaseUrl + nomeArquivo;
 
         } catch (Exception e) {
-            throw new RuntimeException("Falha ao enviar arquivo para Hetzner: " + e.getMessage());
-        } finally {
-            if (channelSftp != null) channelSftp.disconnect();
-            if (session != null) session.disconnect();
+            throw new RuntimeException("Falha ao enviar arquivo para DigitalOcean: " + e.getMessage());
         }
     }
 
     public void deletarArquivo(String urlPublica) {
-        String nomeArquivo = urlPublica.substring(urlPublica.lastIndexOf("/") + 1);
-        
-        Session session = null;
-        ChannelSftp channelSftp = null;
-
         try {
-            JSch jsch = new JSch();
-            session = jsch.getSession(user, host, 22);
-            session.setPassword(password);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.connect();
+            String nomeArquivo = urlPublica.substring(urlPublica.lastIndexOf("/") + 1);
+            
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(nomeArquivo)
+                    .build();
 
-            channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
-            channelSftp.rm(remotePath + nomeArquivo);
-
+            s3Client.deleteObject(deleteRequest);
         } catch (Exception e) {
-            System.err.println("Erro ao deletar arquivo na Hetzner: " + e.getMessage());
-        } finally {
-            if (channelSftp != null) channelSftp.disconnect();
-            if (session != null) session.disconnect();
+            System.err.println("Erro ao deletar no Spaces: " + e.getMessage());
         }
     }
 }
